@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/JennyCarroll/tinyApp/issues"
   },
-  "homepage": "https://github.com/JennyCarroll/tinyApp#readme"
+  "homepage": "https://github.com/JennyCarroll/tinyApp#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }
