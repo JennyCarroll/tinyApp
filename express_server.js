@@ -1,7 +1,3 @@
-// Using EJS and HTML, code the urls_index.ejs file to display the following:
-// A list or table of the URLs and their shortened forms. If you need a reminder on how to loop through data with EJS, take another peek at the What is a Template Engine? Reading.
-// A link for shortening a new URL. This will be a dead link for now (href='#') as we will build the page for this functionality later.
-
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
@@ -24,6 +20,17 @@ app.get("/urls.json", (req, res) => {
 });
 
 //route handler for /urls that renders using our template and template variable object
+// The : in front of id indicates that id is a route parameter. This means that the value in
+// this part of the url will be available in the req.params object.
+app.get("/urls/:id", (req, res) => {
+  const templateVars = {
+    id: req.params.id,
+    longURL: urlDatabase[req.params.id],
+  };
+  res.render("urls_show", templateVars);
+});
+
+//add another page to display URL in its shortened form, this is that endpoint
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
