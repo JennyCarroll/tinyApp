@@ -5,6 +5,12 @@ const PORT = 8080; // default port 8080
 //This tells the Express app to use EJS as its templating engine.
 app.set("view engine", "ejs");
 
+// When our browser submits a POST request, the data in the request body is sent as a Buffer.
+// While this data type is great for transmitting data, it's not readable for us humans.
+// To make this data readable, we will need to use another piece of middleware which will translate,
+// or parse the body. This feature is part of Express.
+app.use(express.urlencoded({ extended: true }));
+
 const urlDatabase = {
   b2xVn2: "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
@@ -29,6 +35,20 @@ app.get("/urls.json", (req, res) => {
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
+// When we navigate to /urls/new in our browser, our browser makes a GET request to our newly created route.
+// Our sever responds by finding urls_new template, generating the HTML, and sending it back to the browser.
+// The browser then renders this HTML.
+
+// The body-parser library will convert the request body from a Buffer into string that we can read.
+// It will then add the data to the req(request) object under the key body.
+// (If you find that req.body is undefined, it may be that the body-parser middleware is not being run correctly.)
+app.post("/urls", (req, res) => {
+  console.log(req.body); // Log the POST request body to the console
+  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+});
+// the data in the input field will be avaialbe to us in the req.body.longURL variable,
+// which we can store in our urlDatabase object.
+// (Later we'll store these URLs in a real database, but for now we're focusing on the communication between server and client.)
 
 //route handler for /urls that renders using our template and template variable object
 // The : in front of id indicates that id is a route parameter. This means that the value in
