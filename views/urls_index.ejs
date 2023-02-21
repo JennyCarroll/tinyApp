@@ -25,6 +25,7 @@ functionality later. -->
           <tr>
             <th scope="col">Short URL ID</th>
             <th scope="col">Long URL</th>
+            <th scope="col">Edit</th>
             <th scope="col">Delete</th>
           </tr>
         </thead>
@@ -40,8 +41,13 @@ functionality later. -->
                 <%= urls[id] %>
               </td>
               <td>
+                <!-- Add an Edit column to the table on the urls_index page. In this column, 
+                have an Edit link appear next to each URL that takes you to the appropriate urls_show page. -->
+                <a href="/urls/<%=id%>"> <button class="btn btn-outline-primary" type="submit">Edit</button></a>
+              </td>
+              <td>
                 <form method="POST" action="/urls/<%= id %>/delete">
-                  <a href="/urls/"> <button class="btn btn-outline-danger" type="submit">Delete</button></a>
+                  <button class="btn btn-outline-danger" type="submit">Delete</button>
                 </form>
                 <!-- The button type submit allows the submission of form data to the server. 
                       In total there are three types of buttons: submit, reset and button. 

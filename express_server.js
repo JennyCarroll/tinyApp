@@ -70,6 +70,7 @@ app.post("/urls", (req, res) => {
 // The : in front of id indicates that id is a route parameter. This means that the value in
 // this part of the url will be available in the req.params object.
 app.get("/urls/:id", (req, res) => {
+  console.log(req);
   const templateVars = {
     id: req.params.id,
     longURL: urlDatabase[req.params.id],
@@ -97,6 +98,19 @@ app.post("/urls/:id/delete", (req, res) => {
   delete urlDatabase[req.params.id];
   res.redirect("/urls");
 });
+// Test your new delete route by entering the following curl command into your terminal: curl -X POST "http://localhost:8080/urls/9sm5xK/delete"
+
+//Add a POST route that updates a URL resource; POST /urls/:id and have it update the value of your stored
+// long URL based on the new value in req.body.
+// the path needs to include a variable that contains the short URL, which is used as an ID to find that shortened URL's data.)
+// Finally, redirect the client back to /urls.
+app.post("/urls/:id", (req, res) => {
+  const id = req.params.id;
+  const longURL = req.body.newLongURL;
+  urlDatabase[id] = longURL;
+  res.redirect("/urls");
+});
+//req.body holds the input from the form.  req.params is defined in the url token. res. is our response to the client
 
 //the response can contain HTML code, which would be rendered in the client browser.
 app.get("/hello", (req, res) => {
