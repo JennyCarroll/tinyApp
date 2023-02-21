@@ -1,3 +1,4 @@
+// npm start
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
@@ -81,7 +82,7 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-//add the following route to handle shortURL requests and redirect to the longURL
+//add the following route to handle shortURL requests and Redirect any request to "/u/:id" to its longURL
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
   if (!req.params.id || longURL === undefined) {
