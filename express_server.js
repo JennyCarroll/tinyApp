@@ -9,6 +9,7 @@ const urlDatabase = {
   b2xVn2: "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
 };
+
 //here is one endpoint
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -17,6 +18,16 @@ app.get("/", (req, res) => {
 //add an additional endpoint
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
+});
+
+//new get route to show the form
+// The GET /urls/new route needs to be defined before the GET /urls/:id route.
+// Routes defined earlier will take precedence, so if we place this route after the /urls/:id definition,
+// any calls to /urls/new will be handled by app.get("/urls/:id", ...)
+// because Express will think that new is a route parameter.
+// A good rule of thumb to follow is that routes should be ordered from most specific to least specific.
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
 });
 
 //route handler for /urls that renders using our template and template variable object
