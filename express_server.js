@@ -30,6 +30,7 @@ app.get("/", (req, res) => {
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
+// http//:
 
 //new get route to show the form
 // The GET /urls/new route needs to be defined before the GET /urls/:id route.
@@ -48,10 +49,14 @@ app.get("/urls/new", (req, res) => {
 // It will then add the data to the req(request) object under the key body.
 // (If you find that req.body is undefined, it may be that the body-parser middleware is not being run correctly.)
 app.post("/urls", (req, res) => {
+  // Update your express server so that the id-longURL key-value pair are saved to the urlDatabase
+  // when it receives a POST request to /urls
   let shortURL = generateRandomString();
   console.log(req.body); // Log the POST request body to the console
   urlDatabase[shortURL] = req.body.longURL;
   console.log(urlDatabase);
+  // Update your express server so that when it receives a POST request to /urls it responds with
+  // a redirection to /urls/:id.
   res.redirect(`/urls/${shortURL}`);
   // res.send("Ok"); // Respond with 'Ok' (we will replace this)
 });
@@ -74,6 +79,15 @@ app.get("/urls/:id", (req, res) => {
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
+});
+
+//add the following route to handle shortURL requests and redirect to the longURL
+app.get("/u/:id", (req, res) => {
+  const longURL = urlDatabase[req.params.id];
+  if (!req.params.id || longURL === undefined) {
+    res.send("URL doesn't exit");
+  }
+  res.redirect(longURL);
 });
 
 //the response can contain HTML code, which would be rendered in the client browser.
