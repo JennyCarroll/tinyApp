@@ -48,8 +48,12 @@ app.get("/urls/new", (req, res) => {
 // It will then add the data to the req(request) object under the key body.
 // (If you find that req.body is undefined, it may be that the body-parser middleware is not being run correctly.)
 app.post("/urls", (req, res) => {
+  let shortURL = generateRandomString();
   console.log(req.body); // Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  urlDatabase[shortURL] = req.body.longURL;
+  console.log(urlDatabase);
+  res.redirect(`/urls/${shortURL}`);
+  // res.send("Ok"); // Respond with 'Ok' (we will replace this)
 });
 // the data in the input field will be avaialbe to us in the req.body.longURL variable,
 // which we can store in our urlDatabase object.
@@ -77,9 +81,9 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-// app.listen(PORT, () => {
-//   console.log(`Example app listening on port ${PORT}!`);
-// });
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}!`);
+});
 
 // Start the server by running node express_server.js in your terminal
 // Visit http://localhost:8080/ in your browser and make sure you can see the Hello! response.
