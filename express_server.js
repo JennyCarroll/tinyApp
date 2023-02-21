@@ -6,11 +6,12 @@ const PORT = 8080; // default port 8080
 //This tells the Express app to use EJS as its templating engine.
 app.set("view engine", "ejs");
 
+//middleware always runs when you hit the server with a request
 // When our browser submits a POST request, the data in the request body is sent as a Buffer.
 // While this data type is great for transmitting data, it's not readable for us humans.
 // To make this data readable, we will need to use another piece of middleware which will translate,
 // or parse the body. This feature is part of Express.
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true })); //what you pass in to app.use is a callback and you could create your own and use next() within the body of the callback function to call the next middleware
 
 function generateRandomString() {
   const result = Math.random().toString(36).substring(2, 7);
@@ -89,6 +90,12 @@ app.get("/u/:id", (req, res) => {
     res.send("URL doesn't exit");
   }
   res.redirect(longURL);
+});
+
+//add the following route to remove a URL resourse and redirect the client back to the urls_index page ("/urls").
+app.post("/urls/:id/delete", (req, res) => {
+  delete urlDatabase[req.params.id];
+  res.redirect("/urls");
 });
 
 //the response can contain HTML code, which would be rendered in the client browser.
