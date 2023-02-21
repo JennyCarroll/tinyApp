@@ -11,6 +11,11 @@ app.set("view engine", "ejs");
 // or parse the body. This feature is part of Express.
 app.use(express.urlencoded({ extended: true }));
 
+function generateRandomString() {
+  const result = Math.random().toString(36).substring(2, 7);
+  return result;
+}
+
 const urlDatabase = {
   b2xVn2: "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
@@ -72,9 +77,9 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
-});
+// app.listen(PORT, () => {
+//   console.log(`Example app listening on port ${PORT}!`);
+// });
 
 // Start the server by running node express_server.js in your terminal
 // Visit http://localhost:8080/ in your browser and make sure you can see the Hello! response.
