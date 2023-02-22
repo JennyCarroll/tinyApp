@@ -25,6 +25,19 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com",
 };
 
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+};
+
 //here is one endpoint
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -141,6 +154,22 @@ app.get("/register", (req, res) => {
     username: req.cookies["username"],
   };
   res.render("urls_register", templateVars);
+});
+
+// Create a POST /register endpoint. This endpoint should add a new user object to the global users object.
+// The user object should include the user's id, email and password.
+// After adding the user, set a user_id cookie containing the user's newly generated ID.
+// Redirect the user to the /urls page.
+app.post("/register", (req, res) => {
+  let newUserId = generateRandomString();
+  users[newUserId] = {
+    id: newUserId,
+    email: req.body.email,
+    password: req.body.password,
+  };
+  console.log("users:", users);
+  res.cookie("username", newUserId);
+  res.redirect("/urls");
 });
 
 //the response can contain HTML code, which would be rendered in the client browser.
