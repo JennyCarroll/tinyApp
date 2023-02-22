@@ -58,6 +58,11 @@ app.get("/urls.json", (req, res) => {
 // because Express will think that new is a route parameter.
 // A good rule of thumb to follow is that routes should be ordered from most specific to least specific.
 app.get("/urls/new", (req, res) => {
+  // If the user is not logged in, redirect GET /urls/new to GET /login
+  const user = users[req.cookies["user_id"]];
+  if (!user) {
+    res.redirect("/login");
+  }
   const templateVars = {
     // Update all endpoints that currently pass a username value to the templates to pass the entire user
     // object to the template instead.
@@ -74,10 +79,19 @@ app.get("/urls/new", (req, res) => {
 // It will then add the data to the req(request) object under the key body.
 // (If you find that req.body is undefined, it may be that the body-parser middleware is not being run correctly.)
 app.post("/urls", (req, res) => {
+  // If the user is not logged in, POST /urls should respond with an HTML message that tells the user
+  // why they cannot shorten URLs. Double check that in this case the URL is not added to the database.
+  // *******
+  const user = users[req.cookies["user_id"]];
+  if (!user) {
+    return res.send(
+      "<h6>You cannot shorten URLs because you are not logged in!</h6>"
+    );
+  }
   // Update your express server so that the id-longURL key-value pair are saved to the urlDatabase
   // when it receives a POST request to /urls
   let shortURL = generateRandomString();
-  console.log(req.body); // Log the POST request body to the console
+  // console.log(req.body); // Log the POST request body to the console
   urlDatabase[shortURL] = req.body.longURL;
   console.log(urlDatabase);
   // Update your express server so that when it receives a POST request to /urls it responds with
@@ -143,6 +157,11 @@ app.post("/urls/:id", (req, res) => {
 
 // Create a GET /login endpoint that responds with this new login form template.
 app.get("/login", (req, res) => {
+  // If the user is logged in, GET /login should redirect to GET /urls
+  const user = users[req.cookies["user_id"]];
+  if (user) {
+    res.redirect("/urls");
+  }
   const templateVars = {
     user: users[req.cookies["user_id"]],
   };
@@ -178,6 +197,11 @@ app.post("/logout", (req, res) => {
 
 //Create a GET /register endpoint, which returns the registration template
 app.get("/register", (req, res) => {
+  // If the user is logged in, GET /register should redirect to GET /urls
+  const user = users[req.cookies["user_id"]];
+  if (user) {
+    res.redirect("/urls");
+  }
   const templateVars = {
     user: users[req.cookies["user_id"]],
   };
@@ -220,11 +244,6 @@ app.post("/register", (req, res) => {
   console.log("users:", users);
   res.cookie("user_id", newUserId); //set the cookie
   res.redirect("/urls"); //happy path post requests always end in a redirect
-});
-
-//the response can contain HTML code, which would be rendered in the client browser.
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
 app.listen(PORT, () => {
