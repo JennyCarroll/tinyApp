@@ -135,6 +135,14 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
+//Create a GET /register endpoint, which returns the registration template
+app.get("/register", (req, res) => {
+  const templateVars = {
+    username: req.cookies["username"],
+  };
+  res.render("urls_register", templateVars);
+});
+
 //the response can contain HTML code, which would be rendered in the client browser.
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
