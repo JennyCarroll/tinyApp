@@ -141,6 +141,14 @@ app.post("/urls/:id", (req, res) => {
 });
 //req.body holds the input from the form.  req.params is defined in the url token. res. is our response to the client
 
+// Create a GET /login endpoint that responds with this new login form template.
+app.get("/login", (req, res) => {
+  const templateVars = {
+    user: users[req.cookies["user_id"]],
+  };
+  res.render("urls_login", templateVars);
+});
+
 //Add an endpoint to handle a POST to /login in your Express server.
 // It should set a cookie named username to the value submitted in the request body via the login form.
 // After our server has set the cookie it should redirect the browser back to the /urls page.
@@ -161,7 +169,6 @@ app.post("/logout", (req, res) => {
 //Create a GET /register endpoint, which returns the registration template
 app.get("/register", (req, res) => {
   const templateVars = {
-    // username: req.cookies["username"],
     user: users[req.cookies["user_id"]],
   };
   res.render("urls_register", templateVars);
@@ -169,7 +176,7 @@ app.get("/register", (req, res) => {
 
 // This function would take in an email as a parameter, and return either the entire user object
 // or null if not found.
-const userLookup = function (email) {
+const getUserByEmail = function (email) {
   for (let user in users) {
     if (email === users[user]["email"]) {
       return user;
@@ -190,7 +197,7 @@ app.post("/register", (req, res) => {
   if (!email || !password) {
     return res.status(400).send("Please input username AND password");
   }
-  if (userLookup(email)) {
+  if (getUserByEmail(email)) {
     return res.status(400).send("Account exists. Please login");
   }
 
@@ -201,8 +208,8 @@ app.post("/register", (req, res) => {
     password: req.body.password,
   };
   console.log("users:", users);
-  res.cookie("user_id", newUserId);
-  res.redirect("/urls");
+  res.cookie("user_id", newUserId); //set the cookie
+  res.redirect("/urls"); //happy path post requests always end in a redirect
 });
 
 //the response can contain HTML code, which would be rendered in the client browser.

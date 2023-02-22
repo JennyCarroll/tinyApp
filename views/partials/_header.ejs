@@ -9,24 +9,8 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <!-- In the _header.ejs partial of your app, create a <form> that POSTs to /login.
-          If the local (template) variable username is set/defined, display the username and a 
-          separate logout form which will POST to /logout. Otherwise, show the login form. -->
-        <!-- Change the login form logic in _header.ejs to check whether username is present. -->
-        <% if(user) { %>
-          <h3>
-            Logged in as: <%=user.email%>!
-          </h3>
-          <form action="/logout" method="POST">
-            <button type="submit" class="btn btn-primary">Logout</button>
-          </form>
-          <%} else {%>
-            <form action="/login" method="POST">
-              <label for="name">Enter your name: </label>
-              <input class="form-control" type="text" name="username" placeholder="write username here">
-              <button type="submit" class="btn btn-primary">Login</button>
-            </form>
-            <%}%>
+        <a class="nav-item nav-link" href="/register">Register</a>
+        <a class="nav-item nav-link" href="/login">Login</a>
       </div>
     </div>
   </nav>
