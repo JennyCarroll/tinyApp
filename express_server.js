@@ -30,8 +30,8 @@ const urlDatabase = {
 const users = {
   userRandomID: {
     id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur",
+    email: "a@a.com",
+    password: "abc",
   },
   user2RandomID: {
     id: "user2RandomID",
@@ -149,12 +149,22 @@ app.get("/login", (req, res) => {
   res.render("urls_login", templateVars);
 });
 
-//Add an endpoint to handle a POST to /login in your Express server.
-// It should set a cookie named username to the value submitted in the request body via the login form.
-// After our server has set the cookie it should redirect the browser back to the /urls page.
 app.post("/login", (req, res) => {
-  // res.cookie("username", req.body.username);
-  //now that we have the name from the form and have created a cookie we can use req.cookies["username"] to access it
+  // Update the POST /login endpoint to look up the email address (submitted via the login form)
+  // in the user object.
+  email = req.body.email;
+  const user = getUserByEmail(email);
+  if (!user) {
+    // If a user with that e-mail cannot be found, return a response with a 403 status code.
+    return res.status(400).send("Incorrect E-mail or password");
+  }
+  // If a user with that e-mail address is located, compare the password given in the form with the existing user's password.
+  if (req.body.password !== user.password) {
+    // If it does not match, return a response with a 403 status code.
+    return res.status(400).send("Incorrect E-mail or password");
+  }
+  // If both checks pass, set the user_id cookie with the matching user's random ID, then redirect to /urls.
+  res.cookie("user_id", user.id);
   res.redirect("/urls");
 });
 
@@ -162,8 +172,8 @@ app.post("/login", (req, res) => {
 // user back to the /urls page. We suggest using the res.clearCookie function provided by Express,
 // as mentioned in their API documentation
 app.post("/logout", (req, res) => {
-  // res.clearCookie("username");
-  res.redirect("/urls");
+  res.clearCookie("user_id");
+  res.redirect("/login");
 });
 
 //Create a GET /register endpoint, which returns the registration template
@@ -179,7 +189,7 @@ app.get("/register", (req, res) => {
 const getUserByEmail = function (email) {
   for (let user in users) {
     if (email === users[user]["email"]) {
-      return user;
+      return users[user];
     }
   }
   return null;
