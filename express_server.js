@@ -112,6 +112,14 @@ app.post("/urls/:id", (req, res) => {
 });
 //req.body holds the input from the form.  req.params is defined in the url token. res. is our response to the client
 
+//Add an endpoint to handle a POST to /login in your Express server.
+// It should set a cookie named username to the value submitted in the request body via the login form.
+// After our server has set the cookie it should redirect the browser back to the /urls page.
+app.post("/login", (req, res) => {
+  res.cookie("username", req.body.username);
+  res.redirect("/urls");
+});
+
 //the response can contain HTML code, which would be rendered in the client browser.
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");

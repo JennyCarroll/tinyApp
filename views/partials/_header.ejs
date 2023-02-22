@@ -9,6 +9,12 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
+        <!-- In the _header.ejs partial of your app, create a <form> that POSTs to /login. -->
+        <form action="/login" method="POST">
+          <label for="name">Enter your name: </label>
+          <input class="form-control" type="text" name="username" placeholder="write username here">
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
       </div>
     </div>
   </nav>
