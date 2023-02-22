@@ -1,6 +1,8 @@
 // npm start
 const express = require("express");
+var cookieParser = require("cookie-parser");
 const app = express();
+app.use(cookieParser());
 const PORT = 8080; // default port 8080
 
 //This tells the Express app to use EJS as its templating engine.
@@ -41,7 +43,10 @@ app.get("/urls.json", (req, res) => {
 // because Express will think that new is a route parameter.
 // A good rule of thumb to follow is that routes should be ordered from most specific to least specific.
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = {
+    username: req.cookies["username"],
+  };
+  res.render("urls_new", templateVars);
 });
 // When we navigate to /urls/new in our browser, our browser makes a GET request to our newly created route.
 // Our sever responds by finding urls_new template, generating the HTML, and sending it back to the browser.
@@ -72,6 +77,7 @@ app.post("/urls", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   console.log(req);
   const templateVars = {
+    username: req.cookies["username"],
     id: req.params.id,
     longURL: urlDatabase[req.params.id],
   };
@@ -80,7 +86,7 @@ app.get("/urls/:id", (req, res) => {
 
 //add another page to display URL in its shortened form, this is that endpoint
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { username: req.cookies["username"], urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
