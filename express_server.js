@@ -1,6 +1,7 @@
 // npm start
 const express = require("express");
 var cookieParser = require("cookie-parser");
+const { json } = require("express");
 const app = express();
 app.use(cookieParser());
 const PORT = 8080; // default port 8080
@@ -13,6 +14,7 @@ app.set("view engine", "ejs");
 // While this data type is great for transmitting data, it's not readable for us humans.
 // To make this data readable, we will need to use another piece of middleware which will translate,
 // or parse the body. This feature is part of Express.
+// we can stack these app.use(express.json())
 app.use(express.urlencoded({ extended: true })); //what you pass in to app.use is a callback and you could create your own and use next() within the body of the callback function to call the next middleware
 
 function generateRandomString() {
@@ -165,11 +167,33 @@ app.get("/register", (req, res) => {
   res.render("urls_register", templateVars);
 });
 
+// This function would take in an email as a parameter, and return either the entire user object
+// or null if not found.
+const userLookup = function (email) {
+  for (let user in users) {
+    if (email === users[user]["email"]) {
+      return user;
+    }
+  }
+  return null;
+};
 // Create a POST /register endpoint. This endpoint should add a new user object to the global users object.
 // The user object should include the user's id, email and password.
 // After adding the user, set a user_id cookie containing the user's newly generated ID.
 // Redirect the user to the /urls page.
 app.post("/register", (req, res) => {
+  let email = req.body.email;
+  let password = req.body.password;
+  // If email/password are empty, send back response with 400 status code
+  // If someone tries to register with an email that already exists in users object,
+  // send response back with 400 status code
+  if (!email || !password) {
+    return res.status(400).send("Please input username AND password");
+  }
+  if (userLookup(email)) {
+    return res.status(400).send("Account exists. Please login");
+  }
+
   let newUserId = generateRandomString();
   users[newUserId] = {
     id: newUserId,
