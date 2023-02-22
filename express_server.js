@@ -57,7 +57,10 @@ app.get("/urls.json", (req, res) => {
 // A good rule of thumb to follow is that routes should be ordered from most specific to least specific.
 app.get("/urls/new", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"],
+    // Update all endpoints that currently pass a username value to the templates to pass the entire user
+    // object to the template instead.
+    // username: req.cookies["username"],
+    user: users[req.cookies["user_id"]],
   };
   res.render("urls_new", templateVars);
 });
@@ -90,7 +93,8 @@ app.post("/urls", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   console.log(req);
   const templateVars = {
-    username: req.cookies["username"],
+    // username: req.cookies["username"],
+    user: users[req.cookies["user_id"]],
     id: req.params.id,
     longURL: urlDatabase[req.params.id],
   };
@@ -99,7 +103,11 @@ app.get("/urls/:id", (req, res) => {
 
 //add another page to display URL in its shortened form, this is that endpoint
 app.get("/urls", (req, res) => {
-  const templateVars = { username: req.cookies["username"], urls: urlDatabase };
+  const templateVars = {
+    // username: req.cookies["username"],
+    user: users[req.cookies["user_id"]],
+    urls: urlDatabase,
+  };
   res.render("urls_index", templateVars);
 });
 
@@ -135,7 +143,7 @@ app.post("/urls/:id", (req, res) => {
 // It should set a cookie named username to the value submitted in the request body via the login form.
 // After our server has set the cookie it should redirect the browser back to the /urls page.
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username);
+  // res.cookie("username", req.body.username);
   //now that we have the name from the form and have created a cookie we can use req.cookies["username"] to access it
   res.redirect("/urls");
 });
@@ -144,14 +152,15 @@ app.post("/login", (req, res) => {
 // user back to the /urls page. We suggest using the res.clearCookie function provided by Express,
 // as mentioned in their API documentation
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  // res.clearCookie("username");
   res.redirect("/urls");
 });
 
 //Create a GET /register endpoint, which returns the registration template
 app.get("/register", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"],
+    // username: req.cookies["username"],
+    user: users[req.cookies["user_id"]],
   };
   res.render("urls_register", templateVars);
 });
@@ -168,7 +177,7 @@ app.post("/register", (req, res) => {
     password: req.body.password,
   };
   console.log("users:", users);
-  res.cookie("username", newUserId);
+  res.cookie("user_id", newUserId);
   res.redirect("/urls");
 });
 

@@ -13,9 +13,9 @@
           If the local (template) variable username is set/defined, display the username and a 
           separate logout form which will POST to /logout. Otherwise, show the login form. -->
         <!-- Change the login form logic in _header.ejs to check whether username is present. -->
-        <% if(username) { %>
+        <% if(user) { %>
           <h3>
-            Logged in as: <%=username%>!
+            Logged in as: <%=user.email%>!
           </h3>
           <form action="/logout" method="POST">
             <button type="submit" class="btn btn-primary">Logout</button>
