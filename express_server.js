@@ -123,6 +123,15 @@ app.post("/urls/:id", (req, res) => {
 // After our server has set the cookie it should redirect the browser back to the /urls page.
 app.post("/login", (req, res) => {
   res.cookie("username", req.body.username);
+  //now that we have the name from the form and have created a cookie we can use req.cookies["username"] to access it
+  res.redirect("/urls");
+});
+
+// Implement the /logout endpoint so that it clears the username cookie and redirects the
+// user back to the /urls page. We suggest using the res.clearCookie function provided by Express,
+// as mentioned in their API documentation
+app.post("/logout", (req, res) => {
+  res.clearCookie("username");
   res.redirect("/urls");
 });
 
