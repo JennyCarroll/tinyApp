@@ -119,15 +119,28 @@ app.post("/urls", (req, res) => {
 // The : in front of id indicates that id is a route parameter. This means that the value in
 // this part of the url will be available in the req.params object.
 app.get("/urls/:id", (req, res) => {
+  // Ensure the GET /urls/:id page returns a relevant error message to the user if they are not logged in.
+  if (!req.cookies["user_id"]) {
+    return res.send("<h5>Cannot display short URL, please login :)</h5>");
+  }
+  const url = urlDatabase[req.params.id];
+  if (!url) {
+    return res.send("<h5>URL does not exist</h5>");
+  }
+  // ensure the GET /urls/:id page returns a relevant error message to the user if they do not own the URL.
+  if (req.cookies["user_id"] !== url["userID"]) {
+    return res.send("<h5>You can only edit your own urls!</h5>");
+  }
+  console.log("urlDatabase[req.params.id]:", urlDatabase[req.params.id]);
+  console.log("req.params.id:", req.params.id);
   const templateVars = {
-    // username: req.cookies["username"],
     user: users[req.cookies["user_id"]],
     id: req.params.id,
-    longURL: urlDatabase[req.params.id]["longURL"],
+    longURL: url["longURL"],
   };
   res.render("urls_show", templateVars);
 });
-// ***********************************
+
 // Create a function named urlsForUser(id) which returns the URLs where the userID is equal
 // to the id of the currently logged-in user. We will need to filter the entire list in the urlDatabase
 // by comparing the userID in the urlDatabase with the logged-in user's ID from their cookie.
@@ -160,8 +173,12 @@ app.get("/urls", (req, res) => {
 //add the following route to handle shortURL requests and Redirect any request to "/u/:id" to its longURL
 app.get("/u/:id", (req, res) => {
   // Implement a relevant HTML error message if the id does not exist at GET /u/:id.
+  console.log("urlDatabase[req.params.id", urlDatabase[req.params.id]);
+  if (!req.params.id || !urlDatabase[req.params.id]) {
+    res.send(`<h6>Error, URL ${req.params.id} does not exist</h6>`);
+  }
   const longURL = urlDatabase[req.params.id]["longURL"];
-  if (!req.params.id || longURL === undefined) {
+  if (longURL === undefined) {
     res.send(`<h6>Error, URL ${req.params.id} does not exist</h6>`);
   }
   res.redirect(longURL);
