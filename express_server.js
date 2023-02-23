@@ -186,6 +186,22 @@ app.get("/u/:id", (req, res) => {
 
 //add the following route to remove a URL resourse and redirect the client back to the urls_index page ("/urls").
 app.post("/urls/:id/delete", (req, res) => {
+  // should return a relevant error message if id does not exist
+  if (!req.params.id) {
+    return res.send(`<h6>Error, URL id not provided</h6>`);
+  }
+  // should return a relevant error message if the user is not logged in
+  if (!req.cookies["user_id"]) {
+    return res.send(`<h6>Error, you must log in to edit a URL</h6>`);
+  }
+  const url = urlDatabase[req.params.id];
+  if (!url) {
+    return res.send(`<h6>Error, URL ${req.params.id} does not exist</h6>`);
+  }
+  // should return a relevant error message if the user does not own the URL
+  if (req.cookies["user_id"] !== url["userID"]) {
+    return res.send("<h5>You can only edit your own urls!</h5>");
+  }
   delete urlDatabase[req.params.id];
   res.redirect("/urls");
 });
@@ -196,6 +212,22 @@ app.post("/urls/:id/delete", (req, res) => {
 // the path needs to include a variable that contains the short URL, which is used as an ID to find that shortened URL's data.)
 // Finally, redirect the client back to /urls.
 app.post("/urls/:id", (req, res) => {
+  // should return a relevant error message if id does not exist
+  if (!req.params.id) {
+    return res.send(`<h6>Error, URL id not provided</h6>`);
+  }
+  // should return a relevant error message if the user is not logged in
+  if (!req.cookies["user_id"]) {
+    return res.send(`<h6>Error, you must log in to edit a URL</h6>`);
+  }
+  const url = urlDatabase[req.params.id];
+  if (!url) {
+    return res.send(`<h6>Error, URL ${req.params.id} does not exist</h6>`);
+  }
+  // should return a relevant error message if the user does not own the URL
+  if (req.cookies["user_id"] !== url["userID"]) {
+    return res.send("<h5>You can only edit your own urls!</h5>");
+  }
   const id = req.params.id;
   const longURL = req.body.newLongURL;
   urlDatabase[id]["longURL"] = longURL;
