@@ -1,10 +1,22 @@
 const express = require("express");
-const cookieParser = require("cookie-parser");
+// const cookieParser = require("cookie-parser");
+const cookieSession = require("cookie-session");
 const morgan = require("morgan");
 const { json } = require("express");
 const bcrypt = require("bcryptjs");
 const app = express();
-app.use(cookieParser());
+// app.use(cookieParser());
+app.use(
+  cookieSession({
+    name: "session",
+    keys: ["Ariel", "is", "a", "dog"],
+  })
+);
+// const username = req.cookies["user_id"]
+// const username = req.session["user_id"]
+
+//res.cookie('username', user.username)
+// req.session.username = user.username
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
@@ -49,22 +61,22 @@ app.get("/urls.json", (req, res) => {
 
 //GET /urls/new route: if the user is logged in, render urls_new
 app.get("/urls/new", (req, res) => {
-  const templateVars = {
-    // pass the entire user object to the template
-    user: users[req.cookies["user_id"]],
-  };
   // If the user is not logged in, redirect to /login
-  const user = users[req.cookies["user_id"]];
+  const user = users[req.session["user_id"]];
   if (!user) {
     res.redirect("/login");
   }
+  const templateVars = {
+    // pass the entire user object to the template
+    user: users[req.session["user_id"]],
+  };
   res.render("urls_new", templateVars);
 });
 
 //POST /urls endpoint: if user is logged in, save the id-longURL key-value pair to the urlDatabase
 // then redirect to /urls/:id
 app.post("/urls", (req, res) => {
-  const user = users[req.cookies["user_id"]];
+  const user = users[req.session["user_id"]];
   let shortURL = generateRandomString();
   urlDatabase[shortURL] = { longURL: req.body.longURL, userID: user.id };
   // If the user is not logged in, respond with an HTML message that tells the user to log in
@@ -78,14 +90,9 @@ app.post("/urls", (req, res) => {
 
 //GET /urls/:id route handler: if they are logged in, the id exists and they own it, render urls_show
 app.get("/urls/:id", (req, res) => {
-  const cookie = req.cookies["user_id"];
+  const cookie = req.session["user_id"];
   const id = req.params.id;
   const url = urlDatabase[id];
-  const templateVars = {
-    user: users[cookie],
-    id,
-    longURL: url["longURL"],
-  };
   //returns relevant error message to the user if they are not logged in
   if (!cookie) {
     return res.send("<h5>Cannot display short URL, please login :)</h5>");
@@ -98,9 +105,13 @@ app.get("/urls/:id", (req, res) => {
   if (cookie !== url["userID"]) {
     return res.send("<h5>You can only edit your own urls!</h5>");
   }
+  const templateVars = {
+    user: users[cookie],
+    id,
+    longURL: url["longURL"],
+  };
   res.render("urls_show", templateVars);
 });
-// ************how do I have access to the "userID" and what is it?
 
 //Function - returns the URLs where the userID is equal to the id of the currently logged-in user
 const urlsForUser = function (id) {
@@ -118,15 +129,15 @@ const urlsForUser = function (id) {
 
 //GET /urls endpoint: if user is logged in, render urls_index
 app.get("/urls", (req, res) => {
-  const cookie = req.cookies["user_id"];
-  const templateVars = {
-    user: users[cookie],
-    urls: urlsForUser(cookie),
-  };
+  const cookie = req.session["user_id"];
   // return HTML with a relevant error message at if the user is not logged in
   if (!cookie) {
     return res.send("<h5>Cannot display URLs, please login :)</h5>");
   }
+  const templateVars = {
+    user: users[cookie],
+    urls: urlsForUser(cookie),
+  };
   res.render("urls_index", templateVars);
 });
 
@@ -147,7 +158,7 @@ app.get("/u/:id", (req, res) => {
 //POST /urls/id/delete endpoint: remove a URL resourse and redirect to /urls
 app.post("/urls/:id/delete", (req, res) => {
   const id = req.params.id;
-  const cookie = req.cookies["user_id"];
+  const cookie = req.session["user_id"];
   //return relevant error message if id does not exist
   if (!id) {
     return res.send(`<h6>Error, URL id not provided</h6>`);
@@ -172,16 +183,17 @@ app.post("/urls/:id/delete", (req, res) => {
 // Finally, redirect the client back to /urls.
 app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
+  console.log("req.body:", req.body);
   const longURL = req.body.newLongURL;
-  const cookie = req.cookies["user_id"];
+  const cookie = req.session["user_id"];
   const url = urlDatabase[id];
-  //return relevat errorr if no URL id is provided
-  if (!id) {
-    return res.send(`<h6>Error, URL id not provided</h6>`);
-  }
   // return relevant error message if the user is not logged in
   if (!cookie) {
     return res.send(`<h6>Error, you must log in to edit a URL</h6>`);
+  }
+  //return relevant error if no URL id is provided
+  if (!longURL) {
+    return res.send(`<h6>Error, URL not provided</h6>`);
   }
   // return relevant error message if id does not exist
   if (!url) {
@@ -194,17 +206,16 @@ app.post("/urls/:id", (req, res) => {
   urlDatabase[id]["longURL"] = longURL;
   res.redirect("/urls");
 });
-//*********ask someone aboutwhy it says newLongURL***also I don't the first one is working **** can I declar the cookie variable globally?
 
 //GET /login endpoint: if no one is logged in, renders the urls_login template
 app.get("/login", (req, res) => {
   // If user is logged in, redirect to /urls
-  const user = users[req.cookies["user_id"]];
+  const user = users[req.session["user_id"]];
   if (user) {
     res.redirect("/urls");
   }
   const templateVars = {
-    user: users[req.cookies["user_id"]],
+    user: users[req.session["user_id"]],
   };
   res.render("urls_login", templateVars);
 });
@@ -215,28 +226,32 @@ app.post("/login", (req, res) => {
   // look up the email address (submitted via the login form) in the user object
   const email = req.body.email;
   const user = getUserByEmail(email);
-  const checkPassword = bcrypt.compareSync(req.body.password, user.password);
   if (!user) {
     // If user with that e-mail not found, return a 403 status code.
     return res.status(400).send("Incorrect E-mail or password");
   }
+  //keep the below line here
+  const checkPassword = bcrypt.compareSync(req.body.password, user.password);
   // If user with that e-mail, compare the password with existing password, if it does not match, return a 403 status code
   if (!checkPassword) {
     return res.status(400).send("Incorrect E-mail or password");
   }
-  res.cookie("user_id", user.id);
+  // res.cookie("user_id", user.id);
+  req.session["user_id"] = user.id;
   res.redirect("/urls");
+  c;
 });
 
 //POST /logout endpoint: clears the username cookie and redirects to /login
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
+  // res.clearCookie("user_id");
+  req.session = null;
   res.redirect("/login");
 });
 
 //GET /register endpoint: if no one is logged in, renders the urls_register template
 app.get("/register", (req, res) => {
-  const user = users[req.cookies["user_id"]];
+  const user = users[req.session["user_id"]];
   // If the user is logged in, redirect to GET /urls
   if (user) {
     res.redirect("/urls");
@@ -276,7 +291,8 @@ app.post("/register", (req, res) => {
     email,
     password: hashedPassword,
   };
-  res.cookie("user_id", newUserId);
+  // res.cookie("user_id", newUserId);
+  req.session["user_id"] = newUserId;
   res.redirect("/urls");
 });
 
