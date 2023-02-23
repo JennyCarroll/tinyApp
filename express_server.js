@@ -127,13 +127,32 @@ app.get("/urls/:id", (req, res) => {
   };
   res.render("urls_show", templateVars);
 });
+// ***********************************
+// Create a function named urlsForUser(id) which returns the URLs where the userID is equal
+// to the id of the currently logged-in user. We will need to filter the entire list in the urlDatabase
+// by comparing the userID in the urlDatabase with the logged-in user's ID from their cookie.
+const urlsForUser = function (id) {
+  let myURLs = {};
+  for (let shortURL in urlDatabase) {
+    if (urlDatabase[shortURL]["userID"] === id) {
+      myURLs[shortURL] = {
+        longURL: urlDatabase[shortURL]["longURL"],
+        userID: urlDatabase[shortURL]["userID"],
+      };
+    }
+  }
+  return myURLs;
+};
 
 //add another page to display URL in its shortened form, this is that endpoint
 app.get("/urls", (req, res) => {
+  // Return HTML with a relevant error message at GET /urls if the user is not logged in.
+  if (!req.cookies["user_id"]) {
+    return res.send("<h5>Cannot display URLs, please login :)</h5>");
+  }
   const templateVars = {
-    // username: req.cookies["username"],
     user: users[req.cookies["user_id"]],
-    urls: urlDatabase,
+    urls: urlsForUser(req.cookies["user_id"]),
   };
   res.render("urls_index", templateVars);
 });
