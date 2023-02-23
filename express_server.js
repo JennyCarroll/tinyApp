@@ -83,6 +83,8 @@ app.post("/urls", (req, res) => {
   // why they cannot shorten URLs. Double check that in this case the URL is not added to the database.
   // *******
   const user = users[req.cookies["user_id"]];
+  //this protects against invalid users or nonexistant user from trying to create a new url
+  // To test your POST request, enter the following terminal command:curl -X POST -d "longURL=http://www.lighthouselabs.com" localhost:8080/urls
   if (!user) {
     return res.send(
       "<h6>You cannot shorten URLs because you are not logged in!</h6>"
@@ -107,7 +109,6 @@ app.post("/urls", (req, res) => {
 // The : in front of id indicates that id is a route parameter. This means that the value in
 // this part of the url will be available in the req.params object.
 app.get("/urls/:id", (req, res) => {
-  console.log(req);
   const templateVars = {
     // username: req.cookies["username"],
     user: users[req.cookies["user_id"]],
@@ -129,9 +130,10 @@ app.get("/urls", (req, res) => {
 
 //add the following route to handle shortURL requests and Redirect any request to "/u/:id" to its longURL
 app.get("/u/:id", (req, res) => {
+  // Implement a relevant HTML error message if the id does not exist at GET /u/:id.
   const longURL = urlDatabase[req.params.id];
   if (!req.params.id || longURL === undefined) {
-    res.send("URL doesn't exit");
+    res.send(`<h6>Error, URL ${req.params.id} does not exist</h6>`);
   }
   res.redirect(longURL);
 });

@@ -33,8 +33,10 @@ functionality later. -->
           <% for (let id in urls) { %>
             <tr>
               <td>
-                <%= id %>
-                  <!-- Ideally, we would use the DELETE method, but forms only support GET and POST. 
+                <a href="/u/<%=id%>">
+                  <%=id%>
+                </a>
+                <!-- Ideally, we would use the DELETE method, but forms only support GET and POST. 
                   In the future, we would use the method override package or Ajax to get around this limitation, but for this project, using POST is fine. -->
               </td>
               <td>
