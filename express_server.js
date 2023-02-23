@@ -2,6 +2,7 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 const { json } = require("express");
+const bcrypt = require("bcryptjs");
 const app = express();
 app.use(cookieParser());
 app.set("view engine", "ejs");
@@ -212,14 +213,15 @@ app.get("/login", (req, res) => {
 // with matching user's ID, then redirect to /urls
 app.post("/login", (req, res) => {
   // look up the email address (submitted via the login form) in the user object
-  email = req.body.email;
+  const email = req.body.email;
   const user = getUserByEmail(email);
+  const checkPassword = bcrypt.compareSync(req.body.password, user.password);
   if (!user) {
     // If user with that e-mail not found, return a 403 status code.
     return res.status(400).send("Incorrect E-mail or password");
   }
   // If user with that e-mail, compare the password with existing password, if it does not match, return a 403 status code
-  if (req.body.password !== user.password) {
+  if (!checkPassword) {
     return res.status(400).send("Incorrect E-mail or password");
   }
   res.cookie("user_id", user.id);
@@ -258,8 +260,10 @@ const getUserByEmail = function (email) {
 //POST /register endpoint: if password and email are filled in and email is a new email,
 // adds a new user object to the global users object, sets a cookie, redirects to /urls
 app.post("/register", (req, res) => {
-  let email = req.body.email;
-  let password = req.body.password;
+  const newUserId = generateRandomString();
+  const email = req.body.email;
+  const password = req.body.password;
+  const hashedPassword = bcrypt.hashSync(password, 10);
   // If email/password are empty or already exist, send back response with 400 status code
   if (!email || !password) {
     return res.status(400).send("Please input username AND password");
@@ -267,12 +271,10 @@ app.post("/register", (req, res) => {
   if (getUserByEmail(email)) {
     return res.status(400).send("Account exists. Please login");
   }
-
-  let newUserId = generateRandomString();
   users[newUserId] = {
     id: newUserId,
     email,
-    password,
+    password: hashedPassword,
   };
   res.cookie("user_id", newUserId);
   res.redirect("/urls");
