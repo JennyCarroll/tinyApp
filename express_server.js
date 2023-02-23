@@ -5,6 +5,7 @@ const morgan = require("morgan");
 const { json } = require("express");
 const bcrypt = require("bcryptjs");
 const app = express();
+const getUserByEmail = require("./helpers");
 // app.use(cookieParser());
 app.use(
   cookieSession({
@@ -225,7 +226,7 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   // look up the email address (submitted via the login form) in the user object
   const email = req.body.email;
-  const user = getUserByEmail(email);
+  const user = getUserByEmail(email, users);
   if (!user) {
     // If user with that e-mail not found, return a 403 status code.
     return res.status(400).send("Incorrect E-mail or password");
@@ -262,16 +263,6 @@ app.get("/register", (req, res) => {
   res.render("urls_register", templateVars);
 });
 
-//Function - takes in an email and returns either the entire user object or null if not found
-const getUserByEmail = function (email) {
-  for (let user in users) {
-    if (email === users[user]["email"]) {
-      return users[user];
-    }
-  }
-  return null;
-};
-
 //POST /register endpoint: if password and email are filled in and email is a new email,
 // adds a new user object to the global users object, sets a cookie, redirects to /urls
 app.post("/register", (req, res) => {
@@ -283,7 +274,7 @@ app.post("/register", (req, res) => {
   if (!email || !password) {
     return res.status(400).send("Please input username AND password");
   }
-  if (getUserByEmail(email)) {
+  if (getUserByEmail(email, users)) {
     return res.status(400).send("Account exists. Please login");
   }
   users[newUserId] = {
