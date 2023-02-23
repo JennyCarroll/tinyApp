@@ -22,9 +22,19 @@ function generateRandomString() {
   return result;
 }
 
+// const urlDatabase = {
+//   b2xVn2: "http://www.lighthouselabs.ca",
+//   "9sm5xK": "http://www.google.com",
+// };
 const urlDatabase = {
-  b2xVn2: "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
 };
 
 const users = {
@@ -94,8 +104,8 @@ app.post("/urls", (req, res) => {
   // when it receives a POST request to /urls
   let shortURL = generateRandomString();
   // console.log(req.body); // Log the POST request body to the console
-  urlDatabase[shortURL] = req.body.longURL;
-  console.log(urlDatabase);
+  urlDatabase[shortURL] = { longURL: req.body.longURL, userID: user.id };
+  console.log("URLDatabase:", urlDatabase);
   // Update your express server so that when it receives a POST request to /urls it responds with
   // a redirection to /urls/:id.
   res.redirect(`/urls/${shortURL}`);
@@ -113,7 +123,7 @@ app.get("/urls/:id", (req, res) => {
     // username: req.cookies["username"],
     user: users[req.cookies["user_id"]],
     id: req.params.id,
-    longURL: urlDatabase[req.params.id],
+    longURL: urlDatabase[req.params.id]["longURL"],
   };
   res.render("urls_show", templateVars);
 });
@@ -131,7 +141,7 @@ app.get("/urls", (req, res) => {
 //add the following route to handle shortURL requests and Redirect any request to "/u/:id" to its longURL
 app.get("/u/:id", (req, res) => {
   // Implement a relevant HTML error message if the id does not exist at GET /u/:id.
-  const longURL = urlDatabase[req.params.id];
+  const longURL = urlDatabase[req.params.id]["longURL"];
   if (!req.params.id || longURL === undefined) {
     res.send(`<h6>Error, URL ${req.params.id} does not exist</h6>`);
   }
@@ -152,7 +162,7 @@ app.post("/urls/:id/delete", (req, res) => {
 app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
   const longURL = req.body.newLongURL;
-  urlDatabase[id] = longURL;
+  urlDatabase[id]["longURL"] = longURL;
   res.redirect("/urls");
 });
 //req.body holds the input from the form.  req.params is defined in the url token. res. is our response to the client
