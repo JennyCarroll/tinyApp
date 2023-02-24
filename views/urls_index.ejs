@@ -1,8 +1,3 @@
-<!-- Using EJS and HTML, code the urls_index.ejs file to display the following:
-A list or table of the URLs and their shortened forms. 
-A link for shortening a new URL. This will be a dead link for now (href='#') as we will build the page for this
-functionality later. -->
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -43,18 +38,12 @@ functionality later. -->
                 <%= urls[id]["longURL"] %>
               </td>
               <td>
-                <!-- Add an Edit column to the table on the urls_index page. In this column, 
-                have an Edit link appear next to each URL that takes you to the appropriate urls_show page. -->
                 <a href="/urls/<%=id%>"> <button class="btn btn-outline-primary" type="submit">Edit</button></a>
               </td>
               <td>
                 <form method="POST" action="/urls/<%= id %>/delete">
                   <button class="btn btn-outline-danger" type="submit">Delete</button>
                 </form>
-                <!-- The button type submit allows the submission of form data to the server. 
-                      In total there are three types of buttons: submit, reset and button. 
-                A button with the reset attribute type will reset the values of all input fields. 
-                A button with the button attribute type has no default behaviour.  -->
               </td>
             </tr>
             <% } %>

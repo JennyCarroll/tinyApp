@@ -1,6 +1,6 @@
 const { assert } = require("chai");
 
-const { getUserByEmail } = require("../helpers.js");
+const { getUserByEmail, urlsForUser } = require("../helpers.js");
 
 const testUsers = {
   userRandomID: {
@@ -24,5 +24,34 @@ describe("getUserByEmail()", function () {
   });
   it("should return null if a user is not in the database", function () {
     assert.strictEqual(getUserByEmail("jenny@telus.com", testUsers), null);
+  });
+});
+
+const urlDatabase = {
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
+};
+
+describe("urlsForUser()", function () {
+  it("should return an object of URLs that correspond with the user", function () {
+    assert.deepEqual(urlsForUser("aJ48lW", urlDatabase), {
+      b6UTxQ: {
+        longURL: "https://www.tsn.ca",
+        userID: "aJ48lW",
+      },
+      i3BoGr: {
+        longURL: "https://www.google.ca",
+        userID: "aJ48lW",
+      },
+    });
+  });
+  it("should return an empty object otherwise", function () {
+    assert.deepEqual(urlsForUser("g456rg", urlDatabase), {});
   });
 });
