@@ -26,7 +26,7 @@
       <div class="card-footer text-muted">
         <h5>Edit</h5>
         <!-- Add a form to the urls_show template that submits an updated long URL -->
-        <form class="d-inline-flex" method="POST" action="/urls/<%= id %>">
+        <form class="d-inline-flex" method="POST" action="/urls/<%= id %>?_method=PUT">
           <label for="newLongURL">New URL:</label>
           <input type="text" class="form-control" name="newLongURL" placeholder="<%= longURL %>" />
           <button type="submit" class="btn btn-primary">Submit</button>

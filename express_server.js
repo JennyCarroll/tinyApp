@@ -10,6 +10,7 @@ const {
   generateRandomString,
   urlsForUser,
 } = require("./helpers.js");
+const methodOverride = require("method-override");
 // app.use(cookieParser());
 app.use(
   cookieSession({
@@ -20,6 +21,7 @@ app.use(
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
+app.use(methodOverride("_method"));
 const PORT = 8080; // default port 8080
 
 const urlDatabase = {
@@ -164,9 +166,9 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-//POST /urls/:id endpoint: update the value of stored long URL based on the new value submitted in the form
+//PUT /urls/:id endpoint: update the value of stored long URL based on the new value submitted in the form
 // Finally, redirect the client back to /urls.
-app.post("/urls/:id", (req, res) => {
+app.put("/urls/:id", (req, res) => {
   const id = req.params.id;
   const longURL = req.body.newLongURL;
   const cookie = req.session["user_id"];
@@ -191,8 +193,8 @@ app.post("/urls/:id", (req, res) => {
   res.redirect("/urls");
 });
 
-//POST /urls/:id/delete endpoint: remove a URL resourse and redirect to /urls
-app.post("/urls/:id/delete", (req, res) => {
+//DELETE /urls/:id/delete endpoint: remove a URL resourse and redirect to /urls
+app.delete("/urls/:id/delete", (req, res) => {
   const id = req.params.id;
   const cookie = req.session["user_id"];
   //return relevant error message if id does not exist

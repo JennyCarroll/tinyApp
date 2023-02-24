@@ -31,17 +31,17 @@
                 <a href="/u/<%=id%>">
                   <%=id%>
                 </a>
-                <!-- Ideally, we would use the DELETE method, but forms only support GET and POST. 
-                  In the future, we would use the method override package or Ajax to get around this limitation, but for this project, using POST is fine. -->
               </td>
               <td>
                 <%= urls[id]["longURL"] %>
               </td>
               <td>
+                <!-- Edit button that takes you to the appropriate urls_show page. -->
                 <a href="/urls/<%=id%>"> <button class="btn btn-outline-primary" type="submit">Edit</button></a>
               </td>
               <td>
-                <form method="POST" action="/urls/<%= id %>/delete">
+                <!-- Delete button that removes the url -->
+                <form method="POST" action="/urls/<%= id %>/delete?_method=DELETE">
                   <button class="btn btn-outline-danger" type="submit">Delete</button>
                 </form>
               </td>
