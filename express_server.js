@@ -1,5 +1,4 @@
 const express = require("express");
-// const cookieParser = require("cookie-parser");
 const cookieSession = require("cookie-session");
 const morgan = require("morgan");
 const { json } = require("express");
@@ -13,7 +12,6 @@ const {
 } = require("./helpers");
 
 const app = express();
-// app.use(cookieParser());
 app.use(
   cookieSession({
     name: "session",
@@ -132,15 +130,19 @@ app.get("/urls/:id", (req, res) => {
   const url = urlDatabase[id];
   //returns relevant error message to the user if they are not logged in
   if (!cookie) {
-    return res.send("<h5>Cannot display short URL, please login :)</h5>");
+    return res
+      .status(404)
+      .send("<h5>Cannot display short URL, please login :)</h5>");
   }
   //returns relevant error message to the user if URL does not exist
   if (!url) {
-    return res.send("<h5>no URL with provided id in our database</h5>");
+    return res
+      .status(404)
+      .send("<h5>no URL with provided id in our database</h5>");
   }
   //returns relevant error message to the user if they do not own the URL
   if (cookie !== url["userID"]) {
-    return res.send("<h5>You can only edit your own urls!</h5>");
+    return res.status(400).send("<h5>You can only edit your own urls!</h5>");
   }
   const templateVars = {
     user: users[cookie],
@@ -159,19 +161,21 @@ app.put("/urls/:id", (req, res) => {
   const url = urlDatabase[id];
   // return relevant error message if the user is not logged in
   if (!cookie) {
-    return res.send(`<h6>Error, you must log in to edit a URL</h6>`);
+    return res
+      .status(400)
+      .send(`<h6>Error, you must log in to edit a URL</h6>`);
   }
   //return relevant error if no URL id is provided
   if (!longURL) {
-    return res.send(`<h6>Error, URL not provided</h6>`);
+    return res.status(404).send(`<h6>Error, URL not provided</h6>`);
   }
   // return relevant error message if id does not exist
   if (!url) {
-    return res.send(`<h6>Error, URL ${id} does not exist</h6>`);
+    return res.status(404).send(`<h6>Error, URL ${id} does not exist</h6>`);
   }
   // return relevant error message if the user does not own the URL
   if (cookie !== url["userID"]) {
-    return res.send("<h5>You can only edit your own urls!</h5>");
+    return res.status(400).send("<h5>You can only edit your own urls!</h5>");
   }
   urlDatabase[id]["longURL"] = longURL;
   res.redirect("/urls");
@@ -183,19 +187,21 @@ app.delete("/urls/:id/delete", (req, res) => {
   const cookie = req.session["user_id"];
   //return relevant error message if id does not exist
   if (!id) {
-    return res.send(`<h6>Error, URL id not provided</h6>`);
+    return res.status(404).send(`<h6>Error, URL id not provided</h6>`);
   }
   //return relevant error message if the user is not logged in
   if (!cookie) {
-    return res.send(`<h6>Error, you must log in to edit a URL</h6>`);
+    return res
+      .status(400)
+      .send(`<h6>Error, you must log in to edit a URL</h6>`);
   }
   const url = urlDatabase[id];
   if (!url) {
-    return res.send(`<h6>Error, URL ${id} does not exist</h6>`);
+    return res.status(404).send(`<h6>Error, URL ${id} does not exist</h6>`);
   }
   //return relevant error message if the user does not own the URL
   if (cookie !== url["userID"]) {
-    return res.send("<h5>You can only edit your own urls!</h5>");
+    return res.status(400).send("<h5>You can only edit your own urls!</h5>");
   }
   delete urlDatabase[id];
   res.redirect("/urls");
@@ -205,16 +211,16 @@ app.delete("/urls/:id/delete", (req, res) => {
 app.get("/u/:id", (req, res) => {
   const id = req.params.id;
   if (urlDatabase[id] === undefined) {
-    res.send(`<h6>Error, URL ${id} does not exist</h6>`);
+    res.status(404).send(`<h6>Error, URL ${id} does not exist</h6>`);
   }
   const longURL = urlDatabase[id]["longURL"];
   // if URL for the given ID does not exist, it should return HTML with a relevant error message.
   //relevant HTML error message if the id does not exist at GET /u/:id.
   if (!id || !urlDatabase[id]) {
-    res.send(`<h6>Error, URL ${id} does not exist</h6>`);
+    res.status(404).send(`<h6>Error, URL ${id} does not exist</h6>`);
   }
   if (longURL === undefined) {
-    res.send(`<h6>Error, URL ${id} does not exist</h6>`);
+    res.status(404).send(`<h6>Error, URL ${id} does not exist</h6>`);
   }
   res.redirect(longURL);
 });
@@ -224,7 +230,9 @@ app.get("/urls", (req, res) => {
   const cookie = req.session["user_id"];
   // return HTML with a relevant error message at if the user is not logged in
   if (!cookie) {
-    return res.send("<h5>Cannot display URLs, please login :)</h5>");
+    return res
+      .status(400)
+      .send("<h5>Cannot display URLs, please login :)</h5>");
   }
   const templateVars = {
     user: users[cookie],
@@ -240,9 +248,9 @@ app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   // If the user is not logged in, respond with an HTML message that tells the user to log in
   if (!user) {
-    return res.send(
-      "<h6>You cannot shorten URLs because you are not logged in!</h6>"
-    );
+    return res
+      .status(400)
+      .send("<h6>You cannot shorten URLs because you are not logged in!</h6>");
   }
   urlDatabase[shortURL] = { longURL: req.body.longURL, userID: user.id };
   res.redirect(`/urls/${shortURL}`);
