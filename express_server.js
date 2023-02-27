@@ -4,13 +4,15 @@ const cookieSession = require("cookie-session");
 const morgan = require("morgan");
 const { json } = require("express");
 const bcrypt = require("bcryptjs");
-const app = express();
+const methodOverride = require("method-override");
+const { urlDatabase, users } = require("./database");
 const {
   getUserByEmail,
   generateRandomString,
   urlsForUser,
-} = require("./helpers.js");
-const methodOverride = require("method-override");
+} = require("./helpers");
+
+const app = express();
 // app.use(cookieParser());
 app.use(
   cookieSession({
@@ -24,31 +26,13 @@ app.use(morgan("dev"));
 app.use(methodOverride("_method"));
 const PORT = 8080; // default port 8080
 
-const urlDatabase = {
-  b6UTxQ: {
-    longURL: "https://www.tsn.ca",
-    userID: "aJ48lW",
-  },
-  i3BoGr: {
-    longURL: "https://www.google.ca",
-    userID: "aJ48lW",
-  },
-};
-
-const users = {
-  userRandomID: {
-    id: "userRandomID",
-    email: "a@a.com",
-    password: "abc",
-  },
-  user2RandomID: {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk",
-  },
-};
-
+//GET / endpoint: if user is not logged in, redirect to login
 app.get("/", (req, res) => {
+  const user = users[req.session["user_id"]];
+  // If user is logged in, redirect to /login
+  if (!user) {
+    res.redirect("/login");
+  }
   res.send("Hello!");
 });
 
@@ -220,7 +204,11 @@ app.delete("/urls/:id/delete", (req, res) => {
 //GET /u/:id endpoint: if id exists and longURL is defined redirect to the longURL
 app.get("/u/:id", (req, res) => {
   const id = req.params.id;
+  if (urlDatabase[id] === undefined) {
+    res.send(`<h6>Error, URL ${id} does not exist</h6>`);
+  }
   const longURL = urlDatabase[id]["longURL"];
+  // if URL for the given ID does not exist, it should return HTML with a relevant error message.
   //relevant HTML error message if the id does not exist at GET /u/:id.
   if (!id || !urlDatabase[id]) {
     res.send(`<h6>Error, URL ${id} does not exist</h6>`);
