@@ -1,5 +1,3 @@
-<!-- Good README files usually include a title of the project, a brief description, the project's dependencies and any necessary setup steps to get the project running. -->
-
 # TinyApp Project
 
 TinyApp is a full stack web application built with Node and Express that allows users to shorten long URLs. This project was created by me as part of my learnings at Lighthouse Labs.
