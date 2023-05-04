@@ -22,7 +22,7 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 app.use(methodOverride("_method"));
-const PORT = 8080; // default port 8080
+const PORT = 8080;
 
 //GET / endpoint: if user is not logged in, redirect to login
 app.get("/", (req, res) => {
@@ -104,7 +104,6 @@ app.post("/register", (req, res) => {
     email,
     password: hashedPassword,
   };
-  // res.cookie("user_id", newUserId);
   req.session["user_id"] = newUserId;
   res.redirect("/urls");
 });
@@ -258,7 +257,6 @@ app.post("/urls", (req, res) => {
 
 //POST /logout endpoint: clears the username cookie and redirects to /login
 app.post("/logout", (req, res) => {
-  // res.clearCookie("user_id");
   req.session = null;
   res.redirect("/login");
 });
